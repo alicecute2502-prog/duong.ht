@@ -1,0 +1,427 @@
+Để tăng cường tính thuyết phục và giúp buổi thuyết trình báo cáo của bạn đạt hiệu quả cao nhất trước hội đồng, tôi đề xuất tích hợp thêm 3 tính năng tương tác thông minh sau.
+
+Các tính năng này được thiết kế dựa trên đúng thói quen của người báo cáo: **giúp kiểm soát thời gian, điều hướng slide mượt mà và làm nổi bật dữ liệu cốt lõi mà không cần thay đổi bất kỳ câu chữ nào của tài liệu.**
+
+---
+
+### 1. Thanh Tiến Độ Thuyết Trình Trực Quan (Reading Progress Bar)
+
+* **Cách hoạt động:** Một thanh tiến độ mảnh màu Đỏ PNE sẽ xuất hiện ở sát mép trên cùng của màn hình. Khi bạn cuộn chuột qua các phần *Trang chủ $\rightarrow$ Nghiên cứu $\rightarrow$ Review Fanpage*, thanh này sẽ tự động chạy dài ra.
+* **Giá trị khi báo cáo:** Giúp hội đồng phản biện phía dưới dễ dàng định vị buổi thuyết trình đang đi đến giai đoạn nào (Đang ở phần nghiên cứu hay đã sang phần quy chuẩn thị giác).
+
+### 2. Trạng Thái Khớp Phân Đoạn Màn Hình (Active Nav Highlighting)
+
+* **Cách hoạt động:** Khi màn hình trình chiếu cuộn đến khu vực của mục nào (ví dụ: *Visual Guideline*), nút bấm tương ứng trên Menu điều hướng nhanh sẽ tự động sáng lên và đổi màu.
+* **Giá trị khi báo cáo:** Tạo cảm giác chuyên nghiệp như một ứng dụng Native App hoặc một hệ thống Slide Presentation cao cấp, người xem không bị mất phương hướng khi bạn cuộn trang liên tục.
+
+### 3. Nút Điều Hướng Sang Phần Tiếp Theo (Next Section Trigger)
+
+* **Cách hoạt động:** Ở cuối mỗi phân đoạn lớn, thay vì phải cuộn chuột thủ công, một nút bấm tinh tế sẽ xuất hiện hỗ trợ bạn "Chuyển sang nội dung tiếp theo" chỉ với một cú click nhẹ.
+
+---
+
+Dưới đây là mã nguồn **HOÀN CHỈNH (Full Code)** sau khi đã tự động tích hợp cả hiệu ứng xổ thông tin lẫn 3 tính năng tối ưu trình chiếu nâng cao kể trên. Toàn bộ câu chữ tài liệu của bạn được **bảo lưu nguyên vẹn 100%**:
+
+```html
+<!DOCTYPE html>
+<html lang="vi" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kế hoạch truyền thông cho chương trình du học nghề Đức | Phuong Nam Education</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts: Be Vietnam Pro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            color: #1A1A1A;
+            background-color: #FFFFFF;
+        }
+        .brand-gradient {
+            background: linear-gradient(135deg, #D12026 0%, #7D0B0E 100%);
+        }
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Hiệu ứng chuyển động mượt mà của Accordion */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Style cho trạng thái Menu đang kích hoạt */
+        .nav-link.active-section {
+            color: #D12026 !important;
+            border-bottom: 2px solid #D12026;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- PROGRESS BAR (THANH TIẾN ĐỘ THUYẾT TRÌNH) -->
+    <div id="presentation-progress" class="fixed top-0 left-0 h-1 bg-[#D12026] z-[60] transition-all duration-100" style="width: 0%;"></div>
+
+    <!-- 1. MENU ĐIỀU HƯỚNG NHANH -->
+    <header class="glass-nav fixed top-0 left-0 right-0 z-50 border-b border-gray-100 shadow-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-[#D12026] rounded-lg flex items-center justify-center text-white font-bold text-lg">PNE</div>
+                    <div>
+                        <span class="text-xs font-bold text-[#D12026] tracking-wider block uppercase">Báo Cáo Chiến Lược</span>
+                        <span class="text-sm font-bold text-gray-800 block">Phuong Nam Education</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu với Class điều hướng chủ động -->
+                <nav class="hidden md:flex space-x-8 h-20 items-center">
+                    <a href="#trang-chu" class="nav-link text-sm font-semibold text-gray-600 hover:text-[#D12026] py-1 transition-all">Trang chủ</a>
+                    <a href="#nghien-cuu" class="nav-link text-sm font-semibold text-gray-600 hover:text-[#D12026] py-1 transition-all">Nghiên cứu và Định vị</a>
+                    <a href="#review-fanpage" class="nav-link text-sm font-semibold text-gray-600 hover:text-[#D12026] py-1 transition-all">Review Fanpage</a>
+                    <a href="#visual-guideline" class="nav-link text-sm font-semibold text-gray-600 hover:text-[#D12026] py-1 transition-all">Visual Guideline</a>
+                </nav>
+
+                <div class="hidden sm:flex items-center space-x-2 bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200">
+                    <span class="w-2 h-2 bg-red-600 rounded-full animate-pulse"></span>
+                    <span class="text-xs font-medium text-gray-600">Tài liệu Thuyết trình</span>
+                </div>
+
+                <!-- Mobile Button -->
+                <div class="md:hidden">
+                    <button id="menu-btn" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Stack -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 px-4 pt-2 pb-4 space-y-2">
+            <a href="#trang-chu" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#D12026]">Trang chủ</a>
+            <a href="#nghien-cuu" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#D12026]">Nghiên cứu và Định vị</a>
+            <a href="#review-fanpage" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#D12026]">Review Fanpage</a>
+            <a href="#visual-guideline" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-[#D12026]">Visual Guideline</a>
+        </div>
+    </header>
+
+    <!-- 2. TRANG CHỦ -->
+    <section id="trang-chu" class="presentation-section pt-32 pb-20 lg:pt-40 lg:pb-28 bg-gray-50 border-b border-gray-200 min-h-[85vh] flex flex-col justify-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="max-w-4xl space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-red-50 text-[#D12026] text-xs px-3 py-1 rounded font-bold uppercase tracking-wide border border-red-100">
+                    <i class="fa-solid fa-file-lines"></i> <span>Tài liệu nội bộ 2026</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 leading-tight">
+                    Kế Hoạch Truyền Thông <br> Cho Chương Trình <span class="text-[#D12026]">Du Học Nghề Đức</span>
+                </h1>
+                <p class="text-base sm:text-lg text-gray-600 leading-relaxed max-w-3xl">
+                    Hệ thống hóa toàn bộ cấu trúc nội dung, định vị thông điệp cốt lõi và thiết lập quy chuẩn nhận diện thị giác mới nhằm tối ưu hóa hiệu quả truyền thông cho chương trình du học nghề Đức của Phuong Nam Education.
+                </p>
+                <div class="pt-4">
+                    <a href="#nghien-cuu" class="inline-flex bg-[#D12026] text-white font-medium px-6 py-3 rounded-lg hover:bg-[#b01a1f] transition-all items-center space-x-2 shadow-sm">
+                        <span>Bắt đầu bài thuyết trình</span>
+                        <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. NGHIÊN CỨU VÀ ĐỊNH VỊ -->
+    <section id="nghien-cuu" class="presentation-section py-24 bg-white border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-l-4 border-[#D12026] pl-4 mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Nghiên cứu và Định vị</h2>
+                <p class="text-gray-500 mt-1">Nội dung phân tích thực trạng thị trường, insight đối tượng mục tiêu và định vị chương trình.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <!-- Khối Nghiên Cứu (Dạng Accordion) -->
+                <div class="bg-gray-50 p-6 sm:p-8 rounded-xl border border-gray-200 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-900 flex items-center space-x-2 border-b border-gray-200 pb-3 mb-2">
+                        <i class="fa-solid fa-magnifying-glass text-[#D12026]"></i>
+                        <span>Nghiên cứu thị trường & Đối tượng mục tiêu</span>
+                    </h3>
+                    
+                    <!-- Item 1 -->
+                    <div class="accordion-item bg-white rounded border border-gray-200 shadow-2xs overflow-hidden">
+                        <button class="accordion-header w-full px-4 py-4 text-left font-bold text-sm text-gray-900 flex justify-between items-center hover:bg-gray-50 focus:outline-none transition-colors">
+                            <span>Thực trạng thị trường</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 text-xs text-gray-600 leading-relaxed border-t border-gray-100 bg-gray-50/30">
+                                Phân tích sâu về nhu cầu dịch chuyển nhân lực sang Đức, các rào cản về mặt ngôn ngữ (chứng chỉ tiếng Đức) và những lo ngại phổ biến của phụ huynh cũng như học viên về tính minh bạch, an toàn pháp lý.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="accordion-item bg-white rounded border border-gray-200 shadow-2xs overflow-hidden">
+                        <button class="accordion-header w-full px-4 py-4 text-left font-bold text-sm text-gray-900 flex justify-between items-center hover:bg-gray-50 focus:outline-none transition-colors">
+                            <span>Insight đối tượng mục tiêu</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 text-xs text-gray-600 leading-relaxed border-t border-gray-100 bg-gray-50/30">
+                                Phân tách rõ ràng nhu cầu và nỗi đau của từng nhóm: học sinh tốt nghiệp THPT (cần định hướng, lộ trình rõ ràng), người đã đi làm muốn đổi đời (quan tâm đến cơ hội định cư lâu dài, tính an toàn của lộ trình) và phụ huynh (đặt nặng yếu tố tài chính minh bạch, sự bảo trợ).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khối Định Vị (Dạng Accordion) -->
+                <div class="brand-gradient text-white p-6 sm:p-8 rounded-xl shadow-md space-y-4">
+                    <h3 class="text-lg font-bold flex items-center space-x-2 border-b border-white/20 pb-3 mb-2">
+                        <i class="fa-solid fa-bullseye text-[#FFCC00]"></i>
+                        <span>Định vị chương trình</span>
+                    </h3>
+                    
+                    <!-- Item 1 -->
+                    <div class="accordion-item bg-black/10 rounded border border-white/10 overflow-hidden">
+                        <button class="accordion-header w-full px-4 py-4 text-left font-bold text-sm text-[#FFCC00] flex justify-between items-center hover:bg-black/20 focus:outline-none transition-colors">
+                            <span>Thông điệp định vị cốt lõi</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-red-200 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 text-xs text-red-50 leading-relaxed border-t border-white/10 bg-black/5">
+                                Nhấn mạnh vào cam kết chất lượng đào tạo, tính minh bạch và lộ trình khép kín tại hệ sinh thái của Phuong Nam Education: "Đường đi rõ ràng – Chi phí sòng phẳng – Học đến khi đậu".
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="accordion-item bg-black/10 rounded border border-white/10 overflow-hidden">
+                        <button class="accordion-header w-full px-4 py-4 text-left font-bold text-sm text-[#FFCC00] flex justify-between items-center hover:bg-black/20 focus:outline-none transition-colors">
+                            <span>Lợi thế độc quyền (USPs)</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-red-200 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-4 text-xs text-red-50 leading-relaxed border-t border-white/10 bg-black/5">
+                                Làm nổi bật hệ thống đào tạo kết hợp khảo thí chứng chỉ tiếng Đức trực tiếp tại chỗ (Trạm thi ÖSD), tối ưu thời gian nhận bằng và nâng cao tỷ lệ đỗ Visa, đồng thời bảo trợ học viên trọn vẹn cả khi đã sang Đức.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút điều hướng thông minh sang phần tiếp theo -->
+            <div class="text-right">
+                <a href="#review-fanpage" class="inline-flex items-center text-xs font-bold text-gray-400 hover:text-[#D12026] transition-colors border border-gray-200 px-4 py-2 rounded-md bg-gray-50 hover:bg-white">
+                    <span>Chuyển sang phần: Review Fanpage</span>
+                    <i class="fa-solid fa-arrow-down ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. REVIEW FANPAGE -->
+    <section id="review-fanpage" class="presentation-section py-24 bg-gray-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-l-4 border-[#D12026] pl-4 mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Review Fanpage</h2>
+                <p class="text-gray-500 mt-1">Đánh giá hiện trạng kênh truyền thông cốt lõi và giải pháp tái cấu trúc tuyến nội dung.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden mb-12">
+                <div class="p-6 bg-gray-100 border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-base uppercase">Nội dung đánh giá thực trạng & Ma trận nội dung đề xuất</h3>
+                </div>
+                
+                <div class="p-6 lg:p-8 space-y-4">
+                    <!-- Item 1 -->
+                    <div class="accordion-item bg-white rounded-lg border border-gray-200 shadow-2xs overflow-hidden">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm text-red-600 flex justify-between items-center hover:bg-red-50/30 focus:outline-none transition-colors">
+                            <span class="flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i>Đánh giá hiện trạng Fanpage</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-gray-100 bg-red-50/20">
+                                Phân tích chi tiết các bài đăng hiện tại trên hệ thống Fanpage nhằm chỉ ra các điểm hạn chế về mặt phân bổ tuyến bài (quá tập trung vào bài viết chiêu sinh thô cứng), hình ảnh đồ họa chưa đồng nhất theo một quy chuẩn nhận diện thương hiệu chung, và thiếu hụt các định dạng nội dung tương tác trực quan cao hoặc video ngắn để bắt kịp xu hướng tiếp cận của tệp học viên trẻ.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="accordion-item bg-white rounded-lg border border-gray-200 shadow-2xs overflow-hidden">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm text-emerald-600 flex justify-between items-center hover:bg-emerald-50/30 focus:outline-none transition-colors">
+                            <span class="flex items-center"><i class="fa-solid fa-layer-group mr-2"></i>Ma trận nội dung đề xuất</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                        </button>
+                        <div class="accordion-content">
+                            <div class="p-5 text-xs sm:text-sm text-gray-600 leading-relaxed border-t border-gray-100 bg-emerald-50/20">
+                                Xây dựng lại cấu trúc ma trận nội dung dựa trên các trụ cột chính (Content Pillars): Tuyến bài định vị thương hiệu và bảo chứng (minh bạch chi phí, trạm thi tại chỗ); Tuyến bài trải nghiệm thực tế (nhật ký người thật - việc thật từ cựu học viên tại Đức); Tuyến bài giáo dục tương tác chia sẻ kiến thức, đời sống và văn hóa Đức; Tuyến bài thúc đẩy hành động (thông tin chiêu sinh chính thống). Quy định rõ ràng tỷ lệ phân bổ bài đăng và tần suất xuất hiện giữa các tuyến bài.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút điều hướng thông minh sang phần tiếp theo -->
+            <div class="text-right">
+                <a href="#visual-guideline" class="inline-flex items-center text-xs font-bold text-gray-400 hover:text-[#D12026] transition-colors border border-gray-200 px-4 py-2 rounded-md bg-white">
+                    <span>Chuyển sang phần: Visual Guideline</span>
+                    <i class="fa-solid fa-arrow-down ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. VISUAL GUIDELINE -->
+    <section id="visual-guideline" class="presentation-section py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="border-l-4 border-[#D12026] pl-4 mb-12">
+                <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">Visual Guideline</h2>
+                <p class="text-gray-500 mt-1">Quy chuẩn thị giác và hệ thống nhận diện đồ họa áp dụng cho chiến dịch.</p>
+            </div>
+
+            <div class="max-w-5xl mx-auto space-y-4">
+                <!-- Quy chuẩn màu sắc -->
+                <div class="accordion-item bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <button class="accordion-header w-full px-6 py-5 text-left font-bold text-gray-900 text-base flex justify-between items-center hover:bg-gray-100/70 focus:outline-none transition-colors">
+                        <span class="flex items-center"><i class="fa-solid fa-palette text-[#D12026] mr-3"></i>Quy chuẩn màu sắc</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="px-6 pb-6 text-xs text-gray-600 space-y-4 border-t border-gray-200/60 bg-white">
+                            <p class="leading-relaxed mt-4">
+                                Quy định hệ thống màu sắc chủ đạo dựa trên nhận diện cốt lõi của thương hiệu Phuong Nam Education: Sử dụng màu Đỏ PNE làm tông màu nền và điểm nhấn chính, kết hợp linh hoạt cùng sắc Vàng làm màu nhấn bổ trợ cho các khu vực thông tin quan trọng hoặc nút kêu gọi hành động thị giác. Đảm bảo độ tương phản cao và tính nhất quán trên mọi ấn phẩm thiết kế.
+                            </p>
+                            <div class="flex space-x-2 pt-1">
+                                <div class="w-8 h-8 rounded bg-[#D12026] shadow-inner" title="Màu Đỏ PNE"></div>
+                                <div class="w-8 h-8 rounded bg-[#7D0B0E] shadow-inner" title="Màu Đỏ Đậm"></div>
+                                <div class="w-8 h-8 rounded bg-[#FFCC00] shadow-inner" title="Màu Vàng Điểm Nhấn"></div>
+                                <div class="w-8 h-8 rounded bg-[#1A1A1A]" title="Màu Đen Chữ"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quy chuẩn phông chữ -->
+                <div class="accordion-item bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <button class="accordion-header w-full px-6 py-5 text-left font-bold text-gray-900 text-base flex justify-between items-center hover:bg-gray-100/70 focus:outline-none transition-colors">
+                        <span class="flex items-center"><i class="fa-solid fa-font text-[#D12026] mr-3"></i>Quy chuẩn phông chữ</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="px-6 pb-6 text-xs text-gray-600 space-y-3 border-t border-gray-200/60 bg-white">
+                            <p class="leading-relaxed mt-4">
+                                Sử dụng thống nhất phông chữ chuẩn cho toàn bộ chiến dịch truyền thông kỹ thuật số. Quy định rõ ràng phân tầng hiển thị phông chữ từ tiêu đề lớn (Headings), tiêu đề phụ đến phần nội dung chi tiết (Body text) về cả kích thước chữ (Font-size), độ dày chữ (Font-weight) và khoảng cách dòng nhằm tối ưu khả năng đọc, quét thông tin trực quan của người xem.
+                            </p>
+                            <div class="pt-1">
+                                <span class="font-bold text-sm text-gray-800 block">Be Vietnam Pro (Font chữ chính thức)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quy tắc thiết kế hình ảnh -->
+                <div class="accordion-item bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                    <button class="accordion-header w-full px-6 py-5 text-left font-bold text-gray-900 text-base flex justify-between items-center hover:bg-gray-100/70 focus:outline-none transition-colors">
+                        <span class="flex items-center"><i class="fa-solid fa-file-image text-[#D12026] mr-3"></i>Quy tắc thiết kế hình ảnh</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 transition-transform duration-300 chevron-icon"></i>
+                    </button>
+                    <div class="accordion-content">
+                        <div class="px-6 pb-6 text-xs text-gray-600 border-t border-gray-200/60 bg-white">
+                            <p class="leading-relaxed mt-4">
+                                Thiết lập các quy tắc xử lý bố cục hình ảnh, khung chứa nội dung, phong cách đồ họa nền và các hiệu ứng đồ họa đi kèm. Hạn chế sử dụng hình ảnh mang tính sắp đặt giả tạo, ưu tiên lồng ghép hình ảnh thực tế từ các hoạt động đào tạo, thi cử tại hệ thống trung tâm hoặc nhật ký trải nghiệm thực tế của học viên để đảm bảo tính xác thực cao nhất của thông điệp.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KẾT THÚC BÁO CÁO -->
+    <section class="py-12 brand-gradient text-white text-center">
+        <p class="text-xs font-semibold tracking-widest text-red-200 uppercase">Hết tài liệu trình bày kế hoạch truyền thông</p>
+        <p class="text-sm mt-2 font-medium">Phuong Nam Education &copy; 2026</p>
+    </section>
+
+    <!-- FOOTER PRESENTATION -->
+    <footer class="bg-gray-900 text-gray-400 py-8 border-t border-gray-800 text-center text-xs">
+        <p class="font-medium text-gray-300">PHUONG NAM EDUCATION &copy; 2026. Tài liệu thuyết trình nội bộ.</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT SYSTEM -->
+    <script>
+        // Xử lý Menu trên Thiết bị di động
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        const navLinksMobile = mobileMenu.querySelectorAll('a');
+        navLinksMobile.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Xử lý Accordion đóng/mở tự động tính toán kích thước thực
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const item = this.parentElement;
+                const content = this.nextElementSibling;
+                const chevron = this.querySelector('.chevron-icon');
+                const isOpen = item.classList.contains('accordion-open');
+                
+                if (isOpen) {
+                    item.classList.remove('accordion-open');
+                    content.style.maxHeight = '0px';
+                    if(chevron) chevron.style.transform = 'rotate(0deg)';
+                } else {
+                    item.classList.add('accordion-open');
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    if(chevron) chevron.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        // HỆ THỐNG ĐIỀU PHỐI ĐIỂM CHẠM MÀN HÌNH (Scroll Progress & Active Navigation Tracking)
+        const sections = document.querySelectorAll('.presentation-section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const progressBar = document.getElementById('presentation-progress');
+
+        window.addEventListener('scroll', () => {
+            // 1. Cập nhật thanh tiến độ đọc ở mép màn hình
+            const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+            if (totalScroll > 0) {
+                const scrolledPercent = (window.scrollY / totalScroll) * 100;
+                progressBar.style.width = scrolledPercent + '%';
+            }
+
+            // 2. Theo dõi vị trí màn hình để làm sáng Menu tương ứng
+            let currentSectionId = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                // Kích hoạt khi phân đoạn chiếm từ 1/3 góc nhìn màn hình trở lên
+                if (window.scrollY >= sectionTop - window.innerHeight / 3) {
+                    currentSectionId = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active-section');
+                if (link.getAttribute('href') === `#${currentSectionId}`) {
+                    link.classList.add('active-section');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+```
